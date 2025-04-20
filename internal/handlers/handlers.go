@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,8 +15,22 @@ import (
 // RootHandler возвращает HTML из файла index.html
 func RootHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Add("Content-Type", "text/html")
-	http.ServeFile(w, r, "./index.html")
+	// Указываем путь к index.html явно
+	path := filepath.Join("..", "index.html") // Поднимаемся на уровень выше
+
+	// Чтение файла index.html
+	data, err := os.ReadFile(path)
+	if err != nil {
+		http.Error(w, "Unable to read index.html", http.StatusInternalServerError)
+		log.Printf("Error reading index.html: %v\n", err)
+		return
+	}
+
+	// Установка заголовка Content-Type
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	// Отправка содержимого файла в ответ
+	w.Write(data)
 
 }
 
