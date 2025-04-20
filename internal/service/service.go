@@ -15,12 +15,12 @@ func TextAndMorseCodeConversion(input string) (string, error) {
 		return "", errors.New("input is empty")
 	}
 
-	isText := strings.ContainsFunc(trimmed, func(r rune) bool {
+	isText := strings.ContainsFunc(input, func(r rune) bool {
 		return unicode.IsLetter(r) || unicode.IsDigit(r)
 	})
 
 	if !isText {
-		if !strings.ContainsFunc(trimmed, func(r rune) bool {
+		if !strings.ContainsFunc(input, func(r rune) bool {
 			return r == '.' || r == '-' || r == ' '
 		}) {
 			return "", errors.New("input is ambiguous: not plain text or valid Morse code")
@@ -28,8 +28,8 @@ func TextAndMorseCodeConversion(input string) (string, error) {
 	}
 
 	if isText {
-		return morse.ToMorse(trimmed), nil
+		return morse.ToMorse(input), nil
 	}
 
-	return morse.ToText(trimmed), nil
+	return morse.ToText(input), nil
 }
