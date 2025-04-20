@@ -3,30 +3,33 @@ package service
 import (
 	"errors"
 	"strings"
+	"unicode"
 
 	"github.com/Yandex-Practicum/go1fl-sprint6-final/pkg/morse"
 )
 
-func TextAndMorseCodeConversion(s string) (string, error) {
-	if isMorseCode(s) {
-		return morse.ToText(s), nil
-	} else if isPlainText(s) {
-		return morse.ToMorse(s), nil
+func TextAndMorseCodeConversion(input string) (string, error) {
+	trimmed := strings.TrimSpace(input)
+
+	if trimmed == "" {
+		return "", errors.New("input is empty")
 	}
 
-	return s, errors.New("the string contains invalid characters")
-}
+	isText := strings.ContainsFunc(trimmed, func(r rune) bool {
+		return unicode.IsLetter(r) || unicode.IsDigit(r)
+	})
 
-// isMorseCode проверяет, является ли строка кодом Морзе.
-func isMorseCode(s string) bool {
-	s = strings.TrimSpace(s)
-	return !strings.ContainsAny(s, "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ1234567890!?") &&
-		strings.ContainsAny(s, ".-")
-}
+	if !isText {
+		if !strings.ContainsFunc(trimmed, func(r rune) bool {
+			return r == '.' || r == '-' || r == ' '
+		}) {
+			return "", errors.New("input is ambiguous: not plain text or valid Morse code")
+		}
+	}
 
-// isPlainText проверяет, является ли строка обычным текстом.
-func isPlainText(s string) bool {
-	s = strings.TrimSpace(s)
-	return !strings.ContainsAny(s, ".-") &&
-		strings.ContainsAny(s, "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ1234567890!?")
+	if isText {
+		return morse.ToMorse(trimmed), nil
+	}
+
+	return morse.ToText(trimmed), nil
 }
