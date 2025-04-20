@@ -10,28 +10,29 @@ import (
 
 func TextAndMorseCodeConversion(input string) (string, error) {
 	trimmed := strings.TrimSpace(input)
+
 	if trimmed == "" {
 		return "", errors.New("input is empty")
 	}
 
-	// Check if the input contains letters or digits, indicating plain text.
+	// Проверка, содержит ли входной текст буквы или цифры
 	isText := strings.ContainsFunc(trimmed, func(r rune) bool {
 		return unicode.IsLetter(r) || unicode.IsDigit(r)
 	})
 
-	// If not plain text, ensure the input consists solely of valid Morse characters.
+	// Если не текст, проверяем на валидный код Морзе
 	if !isText {
-		for _, r := range trimmed {
-			if r != '.' && r != '-' && r != ' ' {
-				return "", errors.New("input is ambiguous: not plain text or valid Morse code")
-			}
+		if !strings.ContainsFunc(trimmed, func(r rune) bool {
+			return r == '.' || r == '-' || r == ' '
+		}) {
+			return "", errors.New("input is ambiguous: not plain text or valid Morse code")
 		}
 	}
 
+	// Конвертация текста в Морзе или наоборот
 	if isText {
-		// Convert plain text to Morse code using the trimmed input.
 		return morse.ToMorse(trimmed), nil
 	}
-	// Convert Morse code to plain text using the trimmed input.
+
 	return morse.ToText(trimmed), nil
 }
