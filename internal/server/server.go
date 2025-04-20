@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/Yandex-Practicum/go1fl-sprint6-final/internal/handlers"
-	"github.com/go-chi/chi/v5"
 )
 
 type Server struct {
@@ -16,9 +15,11 @@ type Server struct {
 
 func NewServer(logger *log.Logger) *Server {
 
-	router := chi.NewRouter()
-	router.Get("/", handlers.RootHandler)
-	router.Post("/upload", handlers.UploadHandler)
+	router := http.NewServeMux()
+
+	// Register the root handler to serve index.html.
+	router.HandleFunc("GET /", handlers.RootHandler)
+	router.HandleFunc("POST /upload", handlers.UploadHandler)
 
 	if err := http.ListenAndServe(":8080", router); err != nil {
 		log.Fatal(err)
